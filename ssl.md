@@ -1,6 +1,9 @@
 # SSL on Apache (Centos)
 
 1. install ssl module 
+2. get letsencrypt certificate
+3. auto renew
+4. crontab
 
 - install ssl module & let's encrypt
 ```
@@ -102,12 +105,20 @@ ___
 
 # SSL on Nginx (Centos)
 
+1. install ssl module
+2. get letsencrypt certificate
+3. auto renew
+4. crontab
+
 ___
 
 
 # SSL on Apache (Debian)
 
 1. install ssl module 
+2. get letsencrypt certificate
+3. auto renew
+4. crontab
 
 - install ssl module & let's encrypt
 ```
