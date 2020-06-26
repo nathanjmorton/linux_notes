@@ -100,27 +100,62 @@ $ crontab -e
 ___
 
 
+# SSL on Nginx (Centos)
+
+___
+
+
 # SSL on Apache (Debian)
 
 1. install ssl module 
 
 - install ssl module & let's encrypt
 ```
-$ yum -y install mod_ssl
-$ yum install -y epel-release
-$ yum instal -y git
+$ a2enmod ssl
+$ a2ensite default-ssl.conf
+$ systemctl reload apache2
+$ systemctl restart apache2
 $ cd /usr/local
-$ git clone https://github.com/letsencrypt/letsencrypt
+$ sudo git clone https://github.com/letsencrypt/letsencrypt
 ```
 - get a letsencrypt certificate
 ```
 $ cd /usr/local/letsencrypt
-$ ./letsencrypt-auto --apache -d centos.boomertech.dev -d ubuntu.boomertech.dev
+$ ./letsencrypt-auto --apache -d apache1.boomertech.dev
+$ ./letsencrypt-auto --apache -d apache2.boomertech.dev
+$ ls /etc/letsencrypt/live
 ```
 - auto renew
 ```
 $ cd /usr/local/letsencrypt
-$ ./letsencrypt-auto certonly --apache --renew-by-default -d centos.boomertech.dev -d ubuntu.boomertech.dev
+$ ./letsencrypt-auto certonly --apache --renew-by-default -d apache1.boomertech.dev 
+$ ./letsencrypt-auto certonly --apache --renew-by-default -d apache2.boomertech.dev
 ```
+- cronjob to auto renew every 90 days
+```
+$ crontab -e
+
+0 1 1 */2 * cd /usr/local/letsencrypt && ./letsencrypt-auto certonly --apache --renew-by-default --apache -d apache1.boomertech.dev >> /var/log/apache1.boomertech.dev-renew.log 2>&1
+
+0 1 1 */2 * cd /usr/local/letsencrypt && ./letsencrypt-auto certonly --apache --renew-by-default --apache -d apache2.boomertech.dev >> /var/log/apache2.boomertech.dev-renew.log 2>&1
+
+```
+- renewal domain config file
+```
+$ cat /etc/letsencrypt/options-ssl-apache.conf
+
+```
+- updated apache2 files
+```
+$ ls /etc/apache2/sites-enabled/
+$ cat /etc/apache2/sites-enabled/apache1-le-ssl.conf
+```
+
+
+___
+
+
+# SSL on Nginx (Debian)
+
 
 
