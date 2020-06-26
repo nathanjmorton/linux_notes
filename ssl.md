@@ -110,6 +110,23 @@ ___
 3. auto renew
 4. crontab
 
+- install ssl module
+```
+$ yum install -y epel-release
+$ yum install -y certbot-nginx
+```
+- get letsencrypt certificate
+```
+$ certbot --nginx -d nginx1centos.boomertech.dev -d nginx2centos.boomertech.dev
+$ nginx -t
+$ systemctl reload nginx
+```
+- auto renew
+```
+$ crontab -e
+15 3 * * * /usr/bin/certbot renew --quiet
+
+```
 ___
 
 
