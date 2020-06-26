@@ -130,10 +130,10 @@ $ chmod -R 755 /var/www/html
 $ cd /etc/nginx/sites-available
 $ touch nginx1
 server {
-        listen 80 default_server;
+        listen 80;
         server_name nginx1.boomertech.dev;
-        root /var/www/html/nginx1;
         location / {
+                root /var/www/html/nginx1;
                 try_files $uri $uri/ =404;
         }
 }
@@ -141,8 +141,8 @@ $ touch nginx2
 server {
         listen 80;
         server_name nginx2.boomertech.dev;
-        root /var/www/html/nginx2;
         location / {
+                root /var/www/html/nginx2;
                 try_files $uri $uri/ =404;
         }
 }
