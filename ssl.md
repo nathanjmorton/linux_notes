@@ -183,7 +183,90 @@ $ cat /etc/apache2/sites-enabled/apache1-le-ssl.conf
 ___
 
 
+
 # SSL on Nginx (Debian)
+
+1. install ssl module
+2. get letsencrypt certificate
+3. put the cert on nginx
+4. auto renew
+5. crontab
+
+- install ssl module
+```
+$ cd /usr/local
+$ git clone https://github.com/letsencrypt/letsencrypt
+```
+- check the port
+```
+$ netstat -tlpn | grep 80
+```
+- stop nginx to bind port for cert & get letsencrypt certificate
+```
+$ systemctl stop nginx
+$ cd /usr/local/letsencrypt
+$ ./letsencrypt-auto certonly --standalone -d nginx1.boomertech.dev
+$ ./letsencrypt-auto certonly --standalone -d nginx2.boomertech.dev
+```
+- put the cert on nginx
+```
+$ ls /etc/letsencrypt/live/nginx1.boomertech.dev
+$ cd /etc/nginx/sites-available/nginx1
+server {
+        listen 80;
+        server_name nginx1.boomertech.dev;
+        location / {
+                root /var/www/html/nginx1;
+                try_files $uri $uri/ =404;
+        } 
+        listen 443 ssl;
+        ssl_certificate /etc/letsencrypt/live/nginx1.boomertech.dev/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/nginx1.boomertech.dev/privkey.pem;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_prefer_server_ciphers on;
+}
+
+$ cd /etc/nginx/sites-available/nginx2
+server {
+        listen 80;
+        server_name nginx2.boomertech.dev;
+        location / {
+                root /var/www/html/nginx2;
+                try_files $uri $uri/ =404;
+        }
+        listen 443 ssl;
+        ssl_certificate /etc/letsencrypt/live/nginx2.boomertech.dev/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/nginx2.boomertech.dev/privkey.pem;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_prefer_server_ciphers on;
+}
+```
+- auto renew
+```
+$ sudo nano /usr/local/bin/ssl-renew.sh
+
+#!/bin/bash
+
+cd /usr/local/letsencrypt
+
+./letsencrypt-auto certonly -a webroot --agree-tos --renew-by-default --webroot-path=/var/www/html/nginx1 -d nginx1.boomertech.dev
+
+./letsencrypt-auto certonly -a webroot --agree-tos --renew-by-default --webroot-path=/var/www/html/nginx2 -d nginx2.boomertech.dev
+
+sudo systemctl reload nginx
+exit 0
+
+$ chmod +x /usr/local/bin/ssl-renew.sh
+```
+- crontab
+```
+$ crontab -e
+0 1 1 */2 * /usr/local/bin/ssl-renew.sh >> /var/log/nginx1.boomertech.dev-renew.log 2>&1
+0 1 1 */2 * /usr/local/bin/ssl-renew.sh >> /var/log/nginx2.boomertech.dev-renew.log 2>&1
+```
+
+
+___
 
 
 
